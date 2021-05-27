@@ -21,7 +21,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.ligamagic.com.br/?view=dks/*"],
+      "matches": ["https://www.ligamagic.com.br/?view=dks/*","https://www.ligamagic.com.br/?view=cards/lista*"],
       "js": ["backGround.js"]
     }
   ]

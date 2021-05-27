@@ -1,8 +1,9 @@
 // When the button is clicked, inject setPageBackgroundColor into current page
-let criaLista = document.getElementById("criaLista");
+let listLtda = document.getElementById("newList");
+let inShoop = document.getElementById("inShoop");
 
 
-criaLista.addEventListener("click", async () => {
+listLtda.addEventListener("click", async () => {
 	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 	chrome.scripting.executeScript({
 		target: { tabId: tab.id },
@@ -10,8 +11,15 @@ criaLista.addEventListener("click", async () => {
 	});
 });
 
-function limitedList(){
+inShoop.addEventListener("click", async () => {
+	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+	chrome.scripting.executeScript({
+		target: { tabId: tab.id },
+		function: newList
+	});
+});
 
+function limitedList(){
 	function getList(){
 		function comparar(a, b) {
 			//Quebra a String e pega a primeira parte referente ao valor
@@ -79,4 +87,49 @@ function limitedList(){
 	copy(auxStr)
 	alert("Lista com "+listaNew.length+' itens copiada para a area de transferencia')
 	return listaNew
+}
+
+
+
+function newList(){
+	function listCardsOut(){
+		let listRaw = document.querySelector("#pesquisa-body").innerText
+		let aux = listRaw.replace("Ops! Ocorreram erros em sua pesquisa.\n\nVerifique sua Lista de Cards e os Filtros utilizados e efetue uma nova pesquisa.\n\n\nCards sem estoque\n","")
+		aux = aux.replace("\n\n\n\nVerifique o Idioma, Qualidade, Edição e Extras preenchidos e realize uma nova busca.","")
+		let listReturn = aux.split('\n')
+		return listReturn
+	}
+	function inShop(){
+		let listaAll = document.querySelector("#card_list").value.split(/\n/)
+		let listaOff = listCardsOut()
+
+		let listaNew = [];
+		listaAll.forEach(item => {
+			let amount = item.split(' ')[0];
+			let newItem = item.replace(/[0-9]+ /,"");
+			if((listaOff.indexOf(newItem) == -1) ){
+				listaNew.push( amount+' '+newItem );
+			}
+		});
+		let auxStr = listaNew.join('\n')
+		// Atualiza nova Lista
+		document.querySelector("#card_list").value = auxStr
+		alert(listaOff.length + ' itens removidos')
+		copy(auxStr)
+	}
+
+	function copy(string){
+		let inputTest = document.createElement("textarea");
+		inputTest.value = string;
+		//Anexa o elemento ao body
+		document.body.appendChild(inputTest);
+		//seleciona todo o texto do elemento
+		inputTest.select();
+		//executa o comando copy
+		//aqui é feito o ato de copiar para a area de trabalho com base na seleção
+		document.execCommand('copy');
+		//remove o elemento
+		document.body.removeChild(inputTest);
+	}
+	inShop();
 }

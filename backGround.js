@@ -68,4 +68,41 @@ function limitedList(){
 	alert("Lista com "+listaNew.length+' itens copiada para a area de transferencia')
 	return listaNew
 }
-limitedList()
+
+
+
+function newList(){
+
+	function inShop(){
+		let listaAll = document.getElementById('listaAll').value.split(/\n/)
+		let listaOff = document.getElementById('listaOff').value.split(/\n/)
+		let listaNew = [];
+		listaAll.forEach(item => {
+			let newItem = item
+			newItem = newItem.replace(/[0-9]+(.?[0-9]+)+ /, "");
+			if((listaOff.indexOf(newItem) == -1) ){
+				listaNew.push( "1 "+newItem );
+			}
+		});
+		let auxStr = ""
+		listaNew.forEach( item=>{ auxStr=  auxStr + "\n" + item} )
+		copy(auxStr)
+		return listaNew
+	}
+
+	function copy(string){
+		let inputTest = document.createElement("textarea");
+		inputTest.value = string;
+		//Anexa o elemento ao body
+		document.body.appendChild(inputTest);
+		//seleciona todo o texto do elemento
+		inputTest.select();
+		//executa o comando copy
+		//aqui é feito o ato de copiar para a area de trabalho com base na seleção
+		document.execCommand('copy');
+		//remove o elemento
+		document.body.removeChild(inputTest);
+	}
+
+	inShop();
+}
