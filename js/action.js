@@ -96,6 +96,7 @@ function newList(){
 		let listRaw = document.querySelector("#pesquisa-body").innerText
 		let aux = listRaw.replace("Ops! Ocorreram erros em sua pesquisa.\n\nVerifique sua Lista de Cards e os Filtros utilizados e efetue uma nova pesquisa.\n\n\nCards sem estoque\n","")
 		aux = aux.replace("\n\n\n\nVerifique o Idioma, Qualidade, Edição e Extras preenchidos e realize uma nova busca.","")
+		aux = aux.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
 		let listReturn = aux.split('\n')
 		return listReturn
 	}
@@ -111,11 +112,11 @@ function newList(){
 				listaNew.push( amount+' '+newItem );
 			}
 		});
-		let auxStr = listaNew.join('\n')
+		let result = listaNew.join('\n')
 		// Atualiza nova Lista
-		document.querySelector("#card_list").value = auxStr
+		document.querySelector("#card_list").value = result
 		alert(listaOff.length + ' itens removidos')
-		copy(auxStr)
+		copy(result)
 	}
 
 	function copy(string){
