@@ -1,6 +1,7 @@
 // When the button is clicked, inject setPageBackgroundColor into current page
 let listLtda = document.getElementById("newList");
 let inShoop = document.getElementById("inShoop");
+let deltaValue = document.getElementById("deltaValue");
 
 
 listLtda.addEventListener("click", async () => {
@@ -16,6 +17,14 @@ inShoop.addEventListener("click", async () => {
 	chrome.scripting.executeScript({
 		target: { tabId: tab.id },
 		function: newList
+	});
+});
+
+deltaValue.addEventListener("click", async () => {
+	let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+	chrome.scripting.executeScript({
+		target: { tabId: tab.id },
+		function: delta
 	});
 });
 
@@ -89,8 +98,6 @@ function limitedList(){
 	return listaNew
 }
 
-
-
 function newList(){
 	function listCardsOut(){
 		let listRaw = document.querySelector("#pesquisa-body").innerText
@@ -133,4 +140,60 @@ function newList(){
 		document.body.removeChild(inputTest);
 	}
 	inShop();
+}
+
+function delta(){
+
+		function value(v){
+			v=v.replace("R$","")
+			v=v.replace(",",".")
+			v=v.replace(" ","")
+			return parseFloat(v)
+		}
+		
+		var stringToHTML = function (str) {
+			var dom = document.createElement('div');
+			dom.innerHTML = str;
+			return dom;
+		};
+
+		function valueCard(docString){
+			var doc = stringToHTML(docString);
+			var lowerPrice = ''
+			try {
+				lowerPrice = doc.getElementsByClassName("preco-menor")[0].innerText;
+				lowerPrice = value(lowerPrice)
+			} catch (error) {
+				lowerPrice = 0.0;
+			}	
+			return lowerPrice
+		}	
+		
+		function changeData(data, valueBuy,inputNew){
+			newValue = ()=>{
+				return  "R$"+(minLiga)+"</br><span style='color:red'> R$"+(valueBuy-minLiga).toFixed(2)+"</span>" 
+			}
+			var minLiga = valueCard(data)
+			inputNew.innerHTML = newValue()
+		}
+	
+		//Percorre todas as lojas
+		var shops = document.querySelectorAll(".pad-bot-10")
+		shops.forEach(shop => {
+			var cards = Array.from(shop.querySelectorAll(".row"))
+			cards.shift();// Remove o primeiro item que é a legenda
+			cards.pop();// Remove o ultimo item que é a boleta
+			cards.forEach(card => {
+				var name=card.querySelector(".cardtitle").innerText.split('/')[0]
+				console.log(name)
+				var valueBuy=value(card.querySelector(".preco-total").innerText)
+				console.log(valueBuy)
+				var inputNew=card.querySelector(".item-subpreco")
+	
+				var url = "https://www.ligamagic.com.br/?view=cards/card&card=" + name;
+	
+				// Fetch url (goes to bg_page.js)
+				chrome.runtime.sendMessage(url, data => changeData(data, valueBuy,inputNew)); 
+			})
+		});
 }
